@@ -1,9 +1,19 @@
 #region Functions
+function ApplyFormatOptions {
+    param (
+        $FormatOptions
+    )
 
+    $Value = "%1";
+    if ($FormatOptions.DivideBy) {
+        $Value = "(%1 / $($FormatOptions.DivideBy))"
+    }
+    return $Value;
+}
 
 #endregion
 $Options = & "$PSScriptRoot/Get-HwInfo.ps1";
-$Text = @(
+$Skin = @(
     "[Rainmeter]"
     "Update=500"
     ""
@@ -15,6 +25,7 @@ $Text = @(
     "Width=120"
     "NumH=8"
     "BarW=3"
+    "NFontSize=10"
     ""
     "; ----------------STYLES----------------"
     "@Include=#@#Styles.inc"
@@ -24,7 +35,7 @@ $Text = @(
     "Y=#NumH#R"
     "Padding=0,0,2,0"
     "FontFace=Arial"
-    "FontSize=8"
+    "FontSize=#NFontSize#"
     "StringEffect=Border"
     "AntiAlias=1"
     "FontColor=#NumStatColor#"
@@ -42,10 +53,10 @@ $Text = @(
 
 
 # Measures
-$Text += "; Measures"
-$Options.Keys | ForEach-Object {
-    $Value = $Options[$_];
-    $Text += @(
+$Skin += "; Measures"
+$Options | ForEach-Object {
+    $Value = $_;
+    $Skin += @(
         "[m$($Value.Name)]"
         "Measure=Registry"
         "RegHKey=HKEY_CURRENT_USER"
@@ -55,20 +66,35 @@ $Options.Keys | ForEach-Object {
     );
 }
 
-$Text += "; Meters"
-$Options.Keys | ForEach-Object {
-    $Value = $Options[$_];
+$Skin += "; Meters"
+$Options | ForEach-Object {
+    $Value = $_;
     $MeterName = $Value.Name;
-    $Text += @(
+    $MeasureName = "m$MeterName";
+    $Format = $Value.Format;
+    if ($Format) {
+        $DivideBy = $Format.DivideBy ?? 1;
+        $NewMeasureName = "$($MeasureName)Calc"
+        $Skin += @(
+            "[$NewMeasureName]"
+            "Measure=Calc"
+            "Formula=($MeasureName / $DivideBy)"
+        );
+        $MeasureName = $NewMeasureName;
+    }
+
+    $Skin += @(
         "[$MeterName]"
         "Meter=String"
-        "MeasureName=m$MeterName"
+        "MeasureName=$MeasureName"
         "MeterStyle=sNumber"
         "Text=%1$($Value.Unit)"
         "FontColor=$($Value.ValueColor)"
-        "MouseOverAction=[!SetOption #CURRENTSECTION# Text ""$($_)""][!SetOption #CURRENTSECTION# FontColor $($Value.LabelColor)][!UpdateMeter #CURRENTSECTION#][!Redraw]"
+        "MouseOverAction=[!SetOption #CURRENTSECTION# Text ""$($Value.Label)""][!SetOption #CURRENTSECTION# FontColor $($Value.BarColor)][!UpdateMeter #CURRENTSECTION#][!Redraw]"
         "MouseLeaveAction=[!SetOption #CURRENTSECTION# Text ""%1$($Value.Unit)""][!SetOption #CURRENTSECTION# FontColor $($Value.ValueColor)][!UpdateMeter #CURRENTSECTION#][!Redraw]"
-        ""
+    );
+
+    $Skin += @(
         "[$($MeterName)Bar]"
         "Meter=Shape"
         "MeterStyle=sBar"
@@ -78,7 +104,7 @@ $Options.Keys | ForEach-Object {
 }
 
 $SaveLocation = Resolve-Path -Path "$PSScriptRoot\..\..\GameOverlay"
-Set-Content -LiteralPath "$SaveLocation\GameOverlay.ini" $Text;
+Set-Content -LiteralPath "$SaveLocation\GameOverlay.ini" $Skin;
 
 
 
