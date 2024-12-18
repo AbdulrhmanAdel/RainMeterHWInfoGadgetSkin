@@ -1,18 +1,13 @@
 function Initialize()
+    MeasureName = SELF:GetOption("MeasureSource");
+    Measure = SKIN:GetMeasure(MeasureName);
+    DivideBy = SELF:GetOption("DivideBy");
+    Decimal = SELF:GetOption("Decimal");
+    Format = "%." .. (tostring(Decimal)) .. "f";
 end
 
-Measures = {};
 function Update()
-    MeasureName = SELF:GetOption("MeasureSource");
-    -- Measure = Measures[MeasureName];
-    -- print(Measure)
-    -- if (Measure == nil) then
-    --     Measure = SKIN:GetMeasure(MeasureName);
-    --     Measures[MeasureName] = Measure;
-    -- end
-    Measure = SKIN:GetMeasure(MeasureName);
     MeasureValue = tonumber(Measure:GetStringValue())
-    DivideBy = SELF:GetOption("DivideBy")
-    Decimal = SELF:GetOption("Decimal")
-    return string.format("%.1f", MeasureValue / DivideBy);
+    Value = MeasureValue / DivideBy;
+    return string.format(Format, Value);
 end

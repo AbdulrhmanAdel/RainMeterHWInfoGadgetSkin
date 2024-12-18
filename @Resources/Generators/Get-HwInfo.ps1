@@ -46,7 +46,7 @@ $Options = [Ordered]@{
         BarColor    = $Colors[$HardwareGroup.CPU]
         Group       = $HardwareGroup.CPU
         Format      = @{
-            Decimal = 2
+            Decimal = 1
         }
     }    
     "Core Clocks"          = @{
@@ -109,7 +109,7 @@ $Options = [Ordered]@{
         Group       = $HardwareGroup.RAM
         Format      = @{
             DivideBy = 1000
-            Decimal  = 2
+            Decimal  = 1
         }
     }
     "Total Errors"         = @{
