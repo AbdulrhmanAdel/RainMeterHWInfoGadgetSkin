@@ -15,7 +15,7 @@ function ApplyFormatOptions {
 $Options = & "$PSScriptRoot/Get-HwInfo.ps1";
 $Skin = @(
     "[Rainmeter]"
-    "Update=500"
+    "Update=1000"
     ""
     "[Metadata]"
     "Name=HardwareInfo"
@@ -24,8 +24,9 @@ $Skin = @(
     "[Variables]"
     "Width=120"
     "NumH=8"
-    "BarW=3"
+    "BarW=4"
     "NFontSize=10"
+    "NFontWeight=800"
     ""
     "; ----------------STYLES----------------"
     "@Include=#@#Styles.inc"
@@ -33,15 +34,14 @@ $Skin = @(
     "[sNumber]"
     "X=#Width#"
     "Y=#NumH#R"
-    "Padding=0,0,2,0"
+    "Padding=0, 0, 2, 0"
     "FontFace=Arial"
     "FontSize=#NFontSize#"
+    "FontWeight=#NFontWeight#"
     "StringEffect=Border"
     "AntiAlias=1"
-    "FontColor=#NumStatColor#"
     "StringAlign=Right"
     "FontEffectColor=000000C0"
-    "SolidColor=00000001"
     ""
     "[sBar]"
     "X=#Width#"
@@ -56,14 +56,24 @@ $Skin = @(
 $Skin += "; Measures"
 $Options | ForEach-Object {
     $Value = $_;
-    $Skin += @(
-        "[m$($Value.Name)]"
-        "Measure=Registry"
-        "RegHKey=HKEY_CURRENT_USER"
-        "RegKey=SOFTWARE\HWiNFO64\VSB"
-        "RegValue=ValueRaw$($Value.Index)"
-        ""
-    );
+    $Skin += "[m$($Value.Name)]";
+    switch ($Value.Type) {
+        "Script" { 
+            $Skin += @(
+                "Measure=Script"
+                "ScriptFile=#@#$($Value.Script).lua"
+            )
+        }
+        Default {
+            $Skin += @(
+                "Measure=Registry"
+                "RegHKey=HKEY_CURRENT_USER"
+                "RegKey=SOFTWARE\HWiNFO64\VSB"
+                "RegValue=ValueRaw$($Value.Index)"
+            );
+        }
+    }
+    $Skin += "";  
 }
 
 $Skin += "; Meters"
@@ -74,11 +84,15 @@ $Options | ForEach-Object {
     $Format = $Value.Format;
     if ($Format) {
         $DivideBy = $Format.DivideBy ?? 1;
+        $Decimal = $Format.Decimal ?? 0;
         $NewMeasureName = "$($MeasureName)Calc"
         $Skin += @(
             "[$NewMeasureName]"
-            "Measure=Calc"
-            "Formula=($MeasureName / $DivideBy)"
+            "Measure=Script"
+            "ScriptFile=#@#Scripts\Format.lua"
+            "DivideBy=$DivideBy"
+            "Decimal=$Decimal"
+            "MeasureSource=""$MeasureName"""
         );
         $MeasureName = $NewMeasureName;
     }

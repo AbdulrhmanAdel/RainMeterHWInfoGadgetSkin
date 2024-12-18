@@ -1,3 +1,20 @@
+function RandomColor {
+    return ($(for ($i = 0; $i -lt 6; $i++) { Get-Random -InputObject ([char[]]"0123456789ABCDEF") }) -join '')
+}
+
+$HardwareGroup = @{
+    CPU  = 'CPU'
+    RAM  = 'RAM'
+    WHEA = 'WHEA'
+}
+
+$Colors = @{
+    $HardwareGroup.CPU  = RandomColor;
+    $HardwareGroup.RAM  = RandomColor;
+    $HardwareGroup.WHEA = RandomColor;
+}
+
+# "34EBCC", 
 $Options = [Ordered]@{
     "CPU Package"          = @{
         Name        = "CpuTemp"
@@ -6,8 +23,8 @@ $Options = [Ordered]@{
         ValueLength = 3
         LabelColor  = "FFFFFF"
         ValueColor  = "FF8000"
-        BarColor    = "34EBCC"
-        Group       = "CPU"
+        BarColor    = $Colors[$HardwareGroup.CPU]
+        Group       = $HardwareGroup.CPU
     }
     "Total CPU Usage"      = @{
         Name        = "TotalCpuUsage"
@@ -16,8 +33,8 @@ $Options = [Ordered]@{
         ValueLength = 3
         LabelColor  = "FFFFFF"
         ValueColor  = "FF8000"
-        BarColor    = "34EBCC"
-        Group       = "CPU"
+        BarColor    = $Colors[$HardwareGroup.CPU]
+        Group       = $HardwareGroup.CPU
     }
     "CPU Package Power"    = @{
         Name        = "TotalCpuPower"
@@ -26,12 +43,27 @@ $Options = [Ordered]@{
         ValueLength = 7
         LabelColor  = "FFFFFF"
         ValueColor  = "FF8000"
-        BarColor    = "34EBCC"
-        Group       = "CPU"
+        BarColor    = $Colors[$HardwareGroup.CPU]
+        Group       = $HardwareGroup.CPU
         Format      = @{
             Decimal = 2
         }
+    }    
+    "Core Clocks"          = @{
+        Name        = "CoreClocks"
+        Label       = "Clock"
+        Unit        = "GHz"
+        ValueLength = 9
+        LabelColor  = "FFFFFF"
+        ValueColor  = "FF8000"
+        BarColor    = $Colors[$HardwareGroup.CPU]
+        Group       = $HardwareGroup.CPU
+        Format      = @{
+            DivideBy = 1000
+            Decimal  = 2
+        }
     }
+
     "Core VIDs"            = @{
         Name        = "CoreVIDs"
         Label       = "VIDs"
@@ -39,8 +71,8 @@ $Options = [Ordered]@{
         ValueLength = 6
         LabelColor  = "FFFFFF"
         ValueColor  = "FF8000"
-        BarColor    = "34EBCC"
-        Group       = "CPU"
+        BarColor    = $Colors[$HardwareGroup.CPU]
+        Group       = $HardwareGroup.CPU
     }
     "Vcore"                = @{
         Name        = "VCore"
@@ -49,20 +81,22 @@ $Options = [Ordered]@{
         ValueLength = 6
         LabelColor  = "FFFFFF"
         ValueColor  = "FF8000"
-        BarColor    = "34EBCC"
-        Group       = "CPU"
+        BarColor    = $Colors[$HardwareGroup.CPU]
+        Group       = $HardwareGroup.CPU
     }
-    
-    "Core Clocks"          = @{
-        Name        = "CoreClocks"
-        Label       = "Clock"
-        Unit        = "MHz"
-        ValueLength = 9
-        LabelColor  = "FFFFFF"
-        ValueColor  = "FF8000"
-        BarColor    = "34EBCC"
-        Group       = "CPU"
+
+    "DIFF"                 = @{
+        Type       = "Script"
+        Script     = "Scripts\VIDsVCoreDiff"
+        Name       = "VIDsVCoreDiff"
+        Label      = "VIDsVCoreDiff"
+        Unit       = "V"
+        LabelColor = "FFFFFF"
+        ValueColor = "FF8000"
+        BarColor   = $Colors[$HardwareGroup.CPU]
+        Group      = $HardwareGroup.CPU
     }
+
     
     "Physical Memory Used" = @{
         Name        = "TotalRAMUsage"
@@ -71,8 +105,8 @@ $Options = [Ordered]@{
         ValueLength = 3
         LabelColor  = "FFFFFF"
         ValueColor  = "FF8000"
-        BarColor    = "B514AA"
-        Group       = "RAM"
+        BarColor    = $Colors[$HardwareGroup.RAM]
+        Group       = $HardwareGroup.RAM
         Format      = @{
             DivideBy = 1000
             Decimal  = 2
@@ -85,8 +119,8 @@ $Options = [Ordered]@{
         ValueLength = 2
         LabelColor  = "FFFFFF"
         ValueColor  = "FF8000"
-        BarColor    = "DB0909"
-        Group       = "WHEA"
+        BarColor    = $Colors[$HardwareGroup.WHEA]
+        Group       = $HardwareGroup.WHEA
     }
 };
 
