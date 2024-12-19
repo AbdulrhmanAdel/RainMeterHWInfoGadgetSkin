@@ -2,6 +2,14 @@ function RandomColor {
     return ($(for ($i = 0; $i -lt 6; $i++) { Get-Random -InputObject ([char[]]"0123456789ABCDEF") }) -join '')
 }
 
+# $Info = @{
+#     "CPU" = @{
+#         Color = RandomColor
+#         Values = @(
+
+#         );
+#     }
+# };
 $HardwareGroup = @{
     CPU  = 'CPU'
     RAM  = 'RAM'
