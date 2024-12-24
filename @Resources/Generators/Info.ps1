@@ -12,7 +12,7 @@ function ApplyFormatOptions {
 }
 
 #endregion
-$Options = & "$PSScriptRoot/Get-HwInfo.ps1";
+$Options = & "$PSScriptRoot/Helpers/Get-HwInfo.ps1";
 $Skin = @(
     "[Rainmeter]"
     "Update=1000"
@@ -23,13 +23,13 @@ $Skin = @(
     ""
     "[Variables]"
     "Width=120"
-    "NumH=8"
-    "BarW=4"
+    "NumH=4"
+    "BarW=1"
     "NFontSize=10"
-    "NFontWeight=800"
+    "NFontWeight=600"
     ""
     "; ----------------STYLES----------------"
-    "@Include=#@#Styles.inc"
+    "@IncludeStyles=#@#Styles.inc"
     ""
     "[sNumber]"
     "X=#Width#"
@@ -54,48 +54,17 @@ $Skin = @(
 # Measures
 $Skin += "; Measures"
 $Options | ForEach-Object {
-    $Value = $_;
-    $Skin += "[m$($Value.Name)]";
-    switch ($Value.Type) {
-        "Script" { 
-            $Skin += @(
-                "Measure=Script"
-                "ScriptFile=#@#$($Value.Script).lua"
-            )
-        }
-        Default {
-            $Skin += @(
-                "Measure=Registry"
-                "RegHKey=HKEY_CURRENT_USER"
-                "RegKey=SOFTWARE\HWiNFO64\VSB"
-                "RegValue=ValueRaw$($Value.Index)"
-            );
-        }
-    }
-    $Skin += "";  
+    $Measure = & "$PSScriptRoot/Helpers/Create-Measure.ps1" -Properties $_;
+    $Skin += "";
+    $Skin += $Measure.Skin;
+    $Skin += "";
 }
 
 $Skin += "; Meters"
 $Options | ForEach-Object {
     $Value = $_;
     $MeterName = $Value.Name;
-    $MeasureName = "m$MeterName";
-    $Format = $Value.Format;
-    if ($Format) {
-        $DivideBy = $Format.DivideBy ?? 1;
-        $Decimal = $Format.Decimal ?? 0;
-        $NewMeasureName = "$($MeasureName)Calc"
-        $Skin += @(
-            "[$NewMeasureName]"
-            "Measure=Script"
-            "ScriptFile=#@#Scripts\Format.lua"
-            "DivideBy=$DivideBy"
-            "Decimal=$Decimal"
-            "MeasureSource=""$MeasureName"""
-        );
-        $MeasureName = $NewMeasureName;
-    }
-
+    $MeasureName = $_.MeasureName;
     $Skin += @(
         "[$MeterName]"
         "Meter=String"
@@ -116,8 +85,8 @@ $Options | ForEach-Object {
     );
 }
 
-$SaveLocation = Resolve-Path -Path "$PSScriptRoot\..\..\GameOverlay"
-Set-Content -LiteralPath "$SaveLocation\GameOverlay.ini" $Skin;
+$SaveLocation = Resolve-Path -Path "$PSScriptRoot\..\..\Info"
+Set-Content -LiteralPath "$SaveLocation\Info.ini" $Skin;
 
 
 
